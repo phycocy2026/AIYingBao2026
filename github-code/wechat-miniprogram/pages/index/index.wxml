@@ -1,0 +1,157 @@
+<view class="page safe-bottom">
+  <view class="hero">
+    <view class="hero-row">
+      <view>
+        <text class="eyebrow">Personal Nutrition Intelligence</text>
+        <text class="title">AI智营宝</text>
+        <text class="subtitle">智能健康与营养管理助手</text>
+      </view>
+      <button class="refresh" bindtap="refreshPlan">刷新</button>
+    </view>
+
+    <view class="score-card">
+      <view>
+        <text class="score">{{score}}</text>
+        <text class="score-label">健康评分</text>
+      </view>
+      <view class="ring">
+        <view class="ring-core">
+          <text>{{riskTag}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="stat-grid">
+      <view class="stat">
+        <text class="stat-value">{{calorie}}</text>
+        <text class="stat-label">建议热量</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">{{protein}}g</text>
+        <text class="stat-label">蛋白目标</text>
+      </view>
+      <view class="stat">
+        <text class="stat-value">{{steps}}</text>
+        <text class="stat-label">今日步数</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">身体与目标</text>
+      <text class="section-tag">手环已同步</text>
+    </view>
+
+    <view class="form-grid">
+      <view class="field">
+        <text class="label">目标</text>
+        <picker mode="selector" range="{{goalOptions}}" range-key="label" value="{{goalIndex}}" bindchange="onGoalChange">
+          <view class="picker-value">{{currentGoalLabel}}</view>
+        </picker>
+      </view>
+
+      <view class="field">
+        <text class="label">年龄</text>
+        <input value="{{age}}" type="number" bindinput="onAgeInput" />
+      </view>
+
+      <view class="field full">
+        <view class="field-row">
+          <text class="label">睡眠时长</text>
+          <text class="field-value">{{sleep}} 小时</text>
+        </view>
+        <slider min="3" max="10" step="0.5" value="{{sleep}}" activeColor="#2f8a57" bindchange="onSleepChange" />
+      </view>
+
+      <view class="field">
+        <text class="label">今日步数</text>
+        <input value="{{steps}}" type="number" bindinput="onStepsInput" />
+      </view>
+
+      <view class="field">
+        <text class="label">血糖趋势</text>
+        <picker mode="selector" range="{{glucoseOptions}}" range-key="label" value="{{glucoseIndex}}" bindchange="onGlucoseChange">
+          <view class="picker-value">{{currentGlucoseLabel}}</view>
+        </picker>
+      </view>
+    </view>
+
+    <view class="chips">
+      <block wx:for="{{restrictionOptions}}" wx:key="value">
+        <button class="chip {{item.activeClass}}" data-value="{{item.value}}" bindtap="toggleRestriction">{{item.label}}</button>
+      </block>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">拍照识别模拟</text>
+      <text class="section-tag">AR营养卡</text>
+    </view>
+
+    <view class="food-stage {{foodKey}}">
+      <view class="plate plate-main"></view>
+      <view class="plate plate-a"></view>
+      <view class="plate plate-b"></view>
+      <view class="plate plate-c"></view>
+      <view class="nutrition-card">
+        <text class="food-name">{{food.name}}</text>
+        <text class="food-macro">{{food.macro}}</text>
+      </view>
+    </view>
+
+    <view class="scan-actions">
+      <button class="scan-primary" bindtap="scanFood">拍照/选图识别</button>
+      <button class="scan-secondary" bindtap="simulateFoodRecognition">模拟识别一次</button>
+    </view>
+    <text class="recognition-status">{{recognitionStatus}}</text>
+
+    <view class="segmented">
+      <block wx:for="{{foodOptions}}" wx:key="key">
+        <button class="{{item.activeClass}}" data-key="{{item.key}}" bindtap="chooseFood">{{item.label}}</button>
+      </block>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">个性化推荐</text>
+      <text class="section-tag">{{updatedAt}}</text>
+    </view>
+    <block wx:for="{{recommendations}}" wx:key="*this">
+      <view class="recommendation">
+        <text>{{item}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">虚拟健康教练</text>
+      <text class="section-tag">可解释建议</text>
+    </view>
+    <view class="coach-message">
+      <text>{{coachMessage}}</text>
+    </view>
+    <view class="chat-row">
+      <input placeholder="输入：晚餐吃什么？" value="{{coachInput}}" bindinput="onCoachInput" confirm-type="send" bindconfirm="askCoach" />
+      <button bindtap="askCoach">发送</button>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="section-head">
+      <text class="section-title">社区支持</text>
+      <text class="section-tag">连续打卡 12 天</text>
+    </view>
+    <view class="community-card">
+      <text class="community-title">控糖早餐挑战</text>
+      <text class="community-text">本周目标：早餐添加优质蛋白，减少含糖饮品。</text>
+    </view>
+    <view class="community-card">
+      <text class="community-title">晚餐轻负担小组</text>
+      <text class="community-text">今日讨论：运动后如何补充碳水与蛋白。</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,19 @@
+{
+  "description": "AI智营宝智能健康与营养管理助手小程序原型",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "packOptions": {
+    "ignore": []
+  },
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false
+  },
+  "compileType": "miniprogram",
+  "libVersion": "3.6.6",
+  "appid": "touristappid",
+  "projectname": "AI智营宝",
+  "condition": {}
+}
