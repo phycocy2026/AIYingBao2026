@@ -143,6 +143,7 @@ http.createServer(async (req, res) => {
       const result = await recognizeImage(payload);
       sendJson(res, 200, result);
     } catch (error) {
+      console.error("视觉识别失败：", error.message);
       sendJson(res, 500, { error: error.message });
     }
     return;
