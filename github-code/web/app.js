@@ -337,6 +337,12 @@ document.querySelectorAll(".segmented button").forEach((button) => {
 document.querySelector("#foodUpload").addEventListener("change", (event) => {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
+    const previewUrl = URL.createObjectURL(file);
+  const preview = document.querySelector("#foodImage");
+  preview.style.backgroundImage = `url("${previewUrl}")`;
+  preview.style.backgroundSize = "cover";
+  preview.style.backgroundPosition = "center";
+  preview.style.backgroundRepeat = "no-repeat";
   const status = document.querySelector("#recognitionStatus");
   status.textContent = `正在调用大模型识别：${file.name}，请稍候...`;
   recognizeFoodWithVisionModel(file)
