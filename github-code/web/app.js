@@ -364,6 +364,19 @@ document.querySelectorAll(".segmented button").forEach((button) => {
   });
 });
 
+function setRecognitionLoading(isLoading) {
+  const loading = document.querySelector("#recognitionLoading");
+  const upload = document.querySelector("#foodUpload");
+  const uploadLabel = document.querySelector('label[for="foodUpload"]');
+  const simulateButton = document.querySelector("#simulateScan");
+
+  loading.hidden = !isLoading;
+  upload.disabled = isLoading;
+  simulateButton.disabled = isLoading;
+  uploadLabel.classList.toggle("is-disabled", isLoading);
+  uploadLabel.setAttribute("aria-disabled", String(isLoading));
+}
+
 document.querySelector("#foodUpload").addEventListener("change", (event) => {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
@@ -373,13 +386,22 @@ document.querySelector("#foodUpload").addEventListener("change", (event) => {
   preview.style.backgroundPosition = "center";
   preview.style.backgroundRepeat = "no-repeat";
   const status = document.querySelector("#recognitionStatus");
-  status.textContent = `正在调用大模型识别：${file.name}，请稍候...`;
+  setRecognitionLoading(true);
+  document.querySelector("#foodName").textContent = "正在识别食材…";
+  document.querySelector("#foodMacro").textContent = "正在分析图片和估算营养数据";
+  status.textContent = `正在识别：${file.name}，请勿重复选择图片…`;
   recognizeFoodWithVisionModel(file)
     .then((result) => {
       applyIngredientRecognition(result);
     })
     .catch((error) => {
       status.textContent = `识别失败：${error.message}。未使用文件名猜测结果，请检查大模型配置后重试。`;
+      document.querySelector("#foodName").textContent = "食材识别失败";
+      document.querySelector("#foodMacro").textContent = "请检查配置或更换图片后重试";
+    })
+    .finally(() => {
+      setRecognitionLoading(false);
+      event.target.value = "";
     });
 });
 
