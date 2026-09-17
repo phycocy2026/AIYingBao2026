@@ -81,7 +81,7 @@ async function recognizeImage(payload) {
   const result = await postJson(API_URL, {
     model: MODEL,
     temperature: 0.1,
-    max_tokens: 300,
+    max_tokens: 500,
     messages: [
       {
         role: "system",
