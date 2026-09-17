@@ -179,7 +179,7 @@ function buildPlan() {
       : "睡眠状态良好，适合安排中等强度运动并维持规律进餐。",
     state.restrictions.includes("lactose")
       ? "已避开乳制品，推荐无糖豆浆、豆腐、鱼虾或鸡蛋补充蛋白。"
-      : `识别到「${food.name}」，本餐蛋白 ${food.protein}g，可作为今日主要蛋白来源之一。`
+      : `当前餐食估算蛋白 ${food.protein}g，可作为今日主要蛋白来源之一。`
   ];
 
   recommendations.innerHTML = tips.map((tip) => `<li>${tip}</li>`).join("");
@@ -232,7 +232,8 @@ function drawPlate(food) {
 function setFood(foodKey) {
   state.food = foodKey;
   const food = foods[foodKey];
-  document.querySelector("#foodName").textContent = food.name;
+  const categoryButton = document.querySelector(`.segmented button[data-food="${foodKey}"]`);
+  document.querySelector("#foodName").textContent = categoryButton ? `餐食类别：${categoryButton.textContent}` : "餐食类别";
   document.querySelector("#foodMacro").textContent = food.macro;
   document.querySelector("#foodImage").className = `food-image ${foodKey === "bowl" ? "" : foodKey}`.trim();
   document.querySelectorAll(".segmented button").forEach((button) => {
@@ -287,23 +288,52 @@ async function recognizeFoodWithVisionModel(file) {
     })
   });
   if (!response.ok) {
-    throw new Error(`视觉识别接口异常：${response.status}`);
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || `视觉识别接口异常：${response.status}`);
   }
   const result = await response.json();
-  const foodKey = result.foodKey || mapModelFood(result.label, result.dishName || result.dish_name);
+  const foodKey = result.foodKey || mapModelFood(result.label, (result.ingredients || []).join(" "));
   if (!foodKey || !foods[foodKey]) {
     throw new Error("视觉识别结果未匹配到营养分类");
   }
+  const ingredients = Array.isArray(result.ingredients)
+    ? result.ingredients.map((item) => String(item).trim()).filter(Boolean).slice(0, 12)
+    : [];
+  if (!ingredients.length) {
+    throw new Error("大模型没有返回可用的食材列表");
+  }
   return {
     foodKey,
-    dishName: result.dishName || result.dish_name || result.label || foods[foodKey].name,
+    ingredients,
+    nutrition: result.nutrition || {},
     confidence: result.confidence
   };
 }
 
+function formatNutrition(nutrition, fallback) {
+  const calories = Number(nutrition.calories);
+  const protein = Number(nutrition.protein);
+  const carbs = Number(nutrition.carbs);
+  const fat = Number(nutrition.fat);
+  if (![calories, protein, carbs, fat].every(Number.isFinite)) return fallback.macro;
+  return `约 ${Math.round(calories)} kcal · 蛋白 ${Math.round(protein)}g · 碳水 ${Math.round(carbs)}g · 脂肪 ${Math.round(fat)}g`;
+}
+
+function applyIngredientRecognition(result) {
+  setFood(result.foodKey);
+  document.querySelector("#foodName").textContent = `识别食材：${result.ingredients.join("、")}`;
+  document.querySelector("#foodMacro").textContent = formatNutrition(result.nutrition, foods[result.foodKey]);
+  const confidenceText = Number.isFinite(Number(result.confidence))
+    ? `，整体置信度 ${Math.round(Number(result.confidence) * 100)}%`
+    : "";
+  document.querySelector("#recognitionStatus").textContent = `大模型识别完成：${result.ingredients.join("、")}${confidenceText}。营养数据为图片估算值。`;
+}
+
 function applyRecognition(foodKey, message, detail = "") {
   setFood(foodKey);
-  document.querySelector("#recognitionStatus").textContent = `${message}，结果为：${foods[foodKey].name}。${detail}`;
+  const categoryButton = document.querySelector(`.segmented button[data-food="${foodKey}"]`);
+  const categoryName = categoryButton ? categoryButton.textContent : "餐食";
+  document.querySelector("#recognitionStatus").textContent = `${message}，餐食类别为：${categoryName}。${detail}`;
 }
 
 function simulateScan() {
@@ -318,7 +348,7 @@ function answerCoach() {
   const food = foods[state.food];
   if (!question) return;
   const glucoseNote = state.glucose === "rise" ? "主食减半，优先选择全谷物。" : "主食可以保留一拳左右。";
-  coachMessage.textContent = `关于「${question}」：如果今晚已吃过${food.name}，下一餐建议补足深色蔬菜和水分，${glucoseNote} 我会继续结合步数、睡眠和餐后血糖更新计划。`;
+  coachMessage.textContent = `关于「${question}」：下一餐建议补足深色蔬菜和水分，${glucoseNote} 我会继续结合步数、睡眠和餐后血糖更新计划。`;
   document.querySelector("#coachInput").value = "";
 }
 
@@ -330,16 +360,15 @@ document.querySelector("#profileForm").addEventListener("input", () => {
 document.querySelectorAll(".segmented button").forEach((button) => {
   button.addEventListener("click", () => {
     setFood(button.dataset.food);
-    document.querySelector("#recognitionStatus").textContent = `已手动选择：${foods[button.dataset.food].name}，营养卡已更新。`;
+    document.querySelector("#recognitionStatus").textContent = `已手动选择餐食类别：${button.textContent}，营养卡已更新。`;
   });
 });
 
 document.querySelector("#foodUpload").addEventListener("change", (event) => {
   const file = event.target.files && event.target.files[0];
   if (!file) return;
-    const previewUrl = URL.createObjectURL(file);
   const preview = document.querySelector("#foodImage");
-  preview.style.backgroundImage = `url("${previewUrl}")`;
+  preview.style.backgroundImage = `url("${URL.createObjectURL(file)}")`;
   preview.style.backgroundSize = "cover";
   preview.style.backgroundPosition = "center";
   preview.style.backgroundRepeat = "no-repeat";
@@ -347,12 +376,10 @@ document.querySelector("#foodUpload").addEventListener("change", (event) => {
   status.textContent = `正在调用大模型识别：${file.name}，请稍候...`;
   recognizeFoodWithVisionModel(file)
     .then((result) => {
-      const confidenceText = Number.isFinite(Number(result.confidence)) ? ` 大模型判断：${result.dishName}，置信度 ${Math.round(Number(result.confidence) * 100)}%。` : ` 大模型判断：${result.dishName}。`;
-      applyRecognition(result.foodKey, `已识别图片：${file.name}，大模型识别完成`, confidenceText);
+      applyIngredientRecognition(result);
     })
     .catch((error) => {
-      const foodKey = classifyFoodByName(file.name);
-      applyRecognition(foodKey, `已识别图片：${file.name}，本地识别完成`, ` ${error.message}，已使用本地规则兜底。`);
+      status.textContent = `识别失败：${error.message}。未使用文件名猜测结果，请检查大模型配置后重试。`;
     });
 });
 
