@@ -1,0 +1,15 @@
+在 index.html 中确认：
+
+<script src="./top5_translate.js"></script>
+<script src="./app.js"></script>
+
+顺序不能反。
+
+Top-5显示区域：
+
+<div class="top5-card">
+<h3>AI Top-5预测</h3>
+<ol id="top5Prediction">
+<li>等待识别结果</li>
+</ol>
+</div>
