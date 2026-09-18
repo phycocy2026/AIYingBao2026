@@ -9,7 +9,7 @@ const state = {
   recognitionIndex: 0
 };
 
-const VISION_PROXY_URL = window.AIYINGBAO_VISION_PROXY_URL || "/api/vision-recognition";
+const VISION_PROXY_URL = window.AIYINGBAO_VISION_PROXY_URL || "https://aiyingbao2026.onrender.com/api/vision-recognition";
 
 const foods = {
   bowl: {
