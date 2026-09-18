@@ -133,6 +133,19 @@ function serveStatic(req, res) {
 }
 
 http.createServer(async (req, res) => {
+ if(req.method==="GET" && req.url==="/"){
+    res.writeHead(200,{
+        "Content-Type":"text/html;charset=utf-8"
+    });
+
+    res.end(`
+    <h1>AI智营宝 API运行正常</h1>
+    <p>视觉识别服务已启动</p>
+    <p>接口：POST /api/vision-recognition</p>
+    `);
+
+    return;
+}
   if (req.method === "OPTIONS") {
     sendJson(res, 204, {});
     return;
