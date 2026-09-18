@@ -1,10 +1,6 @@
 {
   "name": "aiyingbao-api",
-  "version": "3.1.0",
-  "scripts": {
-    "start": "node vision-proxy-server.js"
-  },
-  "dependencies": {
-    "busboy": "^1.6.0"
-  }
+  "version": "3.2.0",
+  "scripts": {"start": "node vision-proxy-server.js"},
+  "dependencies": {"busboy": "^1.6.0"}
 }
