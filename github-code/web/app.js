@@ -372,6 +372,22 @@ function applyIngredientRecognition(result) {
   setFood(result.foodKey);
   document.querySelector("#foodName").textContent = `识别食材：${result.ingredients.join("、")}`;
   document.querySelector("#foodMacro").textContent = formatNutrition(result.nutrition, foods[result.foodKey]);
+  // AI Top-5预测显示
+  if(result.top5 && result.top5.length){
+
+    document.querySelector("#top5Prediction").innerHTML =
+    result.top5.map(item =>
+    `
+    <li>
+      ${translateFoodLabel(item.name)}
+      ${Math.round(item.confidence*100)}%
+    </li>
+    `
+    ).join("");
+
+  }
+
+}
   const confidenceText = Number.isFinite(Number(result.confidence))
     ? `，整体置信度 ${Math.round(Number(result.confidence) * 100)}%`
     : "";
