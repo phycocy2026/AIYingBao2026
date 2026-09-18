@@ -92,7 +92,28 @@ async function recognizeImage(payload) {
         content: [
           {
             type: "text",
-            text: `请逐项识别图片中可见的食材，并从以下营养分类中选择最接近的一项用于内部计算：${labelText}。不要返回“鸡胸藜麦碗”“糙米鸡腿饭”之类推测出的菜名。只返回 JSON，不要附加解释：{"foodKey":"分类key","ingredients":["食材1","食材2"],"nutrition":{"calories":0,"protein":0,"carbs":0,"fat":0},"confidence":0.0}。nutrition 为整份餐食的估算值，单位依次为 kcal 和 g。只列出图片中有视觉依据的食材；看不清时写“未知食材”。`
+            text: `请逐项识别图片中可见的食材，并从以下营养分类中选择最接近的一项用于内部计算：${labelText}。不要返回“鸡胸藜麦碗”“糙米鸡腿饭”之类推测出的菜名。只返回 JSON，不要附加解释：只返回 JSON：
+
+{
+"foodKey":"分类key",
+"ingredients":["食材1","食材2"],
+
+"top5":[
+{
+"name":"候选食物名称",
+"confidence":0.0
+}
+],
+
+"nutrition":{
+"calories":0,
+"protein":0,
+"carbs":0,
+"fat":0
+},
+
+"confidence":0.0
+}。nutrition 为整份餐食的估算值，单位依次为 kcal 和 g。只列出图片中有视觉依据的食材；看不清时写“未知食材”。`
           },
           { type: "image_url", image_url: { url: payload.imageDataUrl } }
         ]
