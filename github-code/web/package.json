@@ -1,7 +1,6 @@
 {
   "name": "aiyingbao-api",
   "version": "3.1.0",
-  "type": "module",
   "scripts": {
     "start": "node vision-proxy-server.js"
   },
