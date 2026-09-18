@@ -355,7 +355,8 @@ async function recognizeFoodWithVisionModel(file) {
     foodKey,
     ingredients,
     nutrition: result.nutrition || {},
-    confidence: result.confidence
+    confidence: result.confidence,
+    top5: result.top5 || []
   };
 }
 
