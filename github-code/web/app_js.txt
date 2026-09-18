@@ -1,0 +1,39 @@
+在app.js识别成功后的代码中加入：
+
+// AI视觉识别食材
+const ingredientBox =
+document.getElementById("visionIngredients");
+
+if(result.ingredients){
+
+ ingredientBox.innerHTML =
+ result.ingredients.map(
+ item=>`<li>${item}</li>`
+ ).join("");
+
+}
+
+
+// AI Top-5
+
+const top5Box =
+document.getElementById("top5Prediction");
+
+
+if(result.top5){
+
+ top5Box.innerHTML =
+ result.top5.map(item=>{
+
+ return `
+ <li>
+ ${translateTop5(item.name)}
+ :
+ ${(item.confidence*100).toFixed(2)}%
+ </li>
+ `;
+
+ }).join("");
+
+}
+

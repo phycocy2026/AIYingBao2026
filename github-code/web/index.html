@@ -1,196 +1,43 @@
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>AI智营宝 - 智能健康与营养管理助手</title>
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <aside class="sidebar" aria-label="主导航">
-        <div class="brand">
-          <div class="brand-mark">AI</div>
-          <div>
-            <strong>AI智营宝</strong>
-            <span>智能健康与营养管理助手</span>
-          </div>
-        </div>
-        <nav class="nav-list">
-          <a href="#dashboard" class="active">今日总览</a>
-          <a href="#analysis">营养分析</a>
-          <a href="#coach">健康教练</a>
-          <a href="#community">社区支持</a>
-        </nav>
-        <div class="wearable-card">
-          <span class="status-dot"></span>
-          <div>
-            <strong>手环已同步</strong>
-            <small>心率、步数、睡眠、血糖趋势</small>
-          </div>
-        </div>
-      </aside>
+替换原 nutrition-card：
 
-      <main>
-        <section class="topbar" id="dashboard">
-          <div>
-            <p class="eyebrow">Personal Nutrition Intelligence</p>
-            <h1>今日动态饮食方案</h1>
-          </div>
-          <button class="icon-button" id="refreshPlan" title="重新生成建议" aria-label="重新生成建议">↻</button>
-        </section>
+<div class="nutrition-card">
 
-        <section class="hero-panel">
-          <div class="hero-copy">
-            <p>根据身体数据、餐食记录和健康目标，实时生成营养建议。</p>
-            <div class="quick-stats" aria-label="今日健康摘要">
-              <div><strong id="scoreValue">86</strong><span>健康评分</span></div>
-              <div><strong id="calorieValue">1640</strong><span>建议热量</span></div>
-              <div><strong id="proteinValue">78g</strong><span>蛋白目标</span></div>
-            </div>
-          </div>
-          <div class="plate-visual" aria-label="膳食平衡图">
-            <canvas id="plateCanvas" width="280" height="280"></canvas>
-          </div>
-        </section>
+<strong>
+系统营养分类：
+<span id="foodName">
+等待识别
+</span>
+</strong>
 
-        <section class="grid-layout">
-          <article class="panel input-panel" id="analysis">
-            <div class="panel-heading">
-              <h2>身体与目标</h2>
-              <span id="riskTag">代谢风险低</span>
-            </div>
-            <form id="profileForm">
-              <label>
-                目标
-                <select id="goal">
-                  <option value="balance">均衡维持</option>
-                  <option value="fatLoss">控糖减脂</option>
-                  <option value="muscle">增肌恢复</option>
-                  <option value="heart">心血管友好</option>
-                </select>
-              </label>
-              <label>
-                年龄
-                <input id="age" type="number" min="12" max="90" value="29" />
-              </label>
-              <label>
-                睡眠时长
-                <input id="sleep" type="range" min="3" max="10" step="0.5" value="7" />
-                <output id="sleepOutput">7 小时</output>
-              </label>
-              <label>
-                今日步数
-                <input id="steps" type="number" min="0" max="50000" step="500" value="8200" />
-              </label>
-              <label>
-                餐后血糖趋势
-                <select id="glucose">
-                  <option value="stable">稳定</option>
-                  <option value="rise">偏高</option>
-                  <option value="drop">偏低</option>
-                </select>
-              </label>
-              <fieldset>
-                <legend>饮食限制</legend>
-                <label class="check"><input type="checkbox" value="lactose" /> 乳糖不耐</label>
-                <label class="check"><input type="checkbox" value="lowSalt" /> 低盐</label>
-                <label class="check"><input type="checkbox" value="vegetarian" /> 素食优先</label>
-              </fieldset>
-            </form>
-          </article>
+<span id="foodMacro">
+识别后显示热量及营养估算
+</span>
 
-          <article class="panel food-panel">
-            <div class="panel-heading">
-              <h2>食材识别</h2>
-              <span>AR营养卡</span>
-            </div>
-            <div class="food-stage">
-              <div class="food-image" id="foodImage" role="img" aria-label="餐盘示意图"></div>
-              <div class="recognition-loading" id="recognitionLoading" role="status" aria-live="polite" hidden>
-                <span class="loading-spinner" aria-hidden="true"></span>
-                <strong>正在识别食材</strong>
-                <small>大模型正在分析图片，请稍候…</small>
-              </div>
-              <div class="nutrition-card">
-                <strong id="foodName">请选择图片识别食材</strong>
-                <span id="foodMacro">识别后显示热量及营养估算</span>
-              </div>
-            </div>
-            <div class="scan-actions">
-              <label class="file-button" for="foodUpload">选择图片识别</label>
-              <input id="foodUpload" type="file" accept="image/*" />
-              <button id="simulateScan" type="button">模拟识别一次</button>
-            </div>
-            <p class="recognition-status" id="recognitionStatus">未识别图片，可点击“选择图片识别”或“模拟识别一次”。</p>
-            <div class="top5-card">
-  <h3>AI Top-5预测</h3>
-  <ol id="top5Prediction">
-    <li>等待识别结果</li>
-  </ol>
+
+<div class="ai-vision-result">
+
+<h4>AI视觉识别食材</h4>
+
+<ul id="visionIngredients">
+<li>等待AI识别</li>
+</ul>
+
+
+<h4>AI Top-5预测</h4>
+
+<ol id="top5Prediction">
+<li>等待识别结果</li>
+</ol>
+
 </div>
-            <div class="segmented" aria-label="选择餐食">
-              <button class="selected" data-food="bowl">轻食碗</button>
-              <button data-food="noodle">面食</button>
-              <button data-food="salad">沙拉</button>
-              <button data-food="rice">米饭套餐</button>
-              <button data-food="beefRice">牛肉盖饭</button>
-              <button data-food="beefNoodle">牛肉面</button>
-              <button data-food="porridge">粥品</button>
-              <button data-food="bao">包点</button>
-              <button data-food="seafood">鱼虾</button>
-              <button data-food="hotpot">火锅</button>
-              <button data-food="burger">汉堡</button>
-              <button data-food="fruit">水果</button>
-              <button data-food="mungDrink">百合绿豆水</button>
-              <button data-food="coffee">杯装咖啡</button>
-            </div>
-          </article>
 
-          <article class="panel recommendation-panel">
-            <div class="panel-heading">
-              <h2>个性化推荐</h2>
-              <span id="updatedAt">刚刚更新</span>
-            </div>
-            <ul class="recommendations" id="recommendations"></ul>
-          </article>
+</div>
 
-          <article class="panel coach-panel" id="coach">
-            <div class="panel-heading">
-              <h2>虚拟健康教练</h2>
-              <span>可解释建议</span>
-            </div>
-            <div class="coach-message" id="coachMessage"></div>
-            <div class="chat-row">
-              <input id="coachInput" placeholder="输入：晚餐吃什么？" />
-              <button id="askCoach">发送</button>
-            </div>
-          </article>
-        </section>
 
-        <section class="panel community-panel" id="community">
-          <div class="panel-heading">
-            <h2>社区支持</h2>
-            <span>连续打卡 12 天</span>
-          </div>
-          <div class="community-grid">
-            <div>
-              <strong>控糖早餐挑战</strong>
-              <p>本周目标：早餐添加优质蛋白，减少含糖饮品。</p>
-            </div>
-            <div>
-              <strong>晚餐轻负担小组</strong>
-              <p>今日讨论：运动后如何补充碳水与蛋白。</p>
-            </div>
-            <div>
-              <strong>家庭营养共享</strong>
-              <p>同步家人偏好，生成一桌多目标菜单。</p>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
+并在：
 
-    <script src="./app.js"></script>
-  </body>
-</html>
+<script src="./app.js"></script>
+
+前加入：
+
+<script src="./top5_translate.js"></script>
