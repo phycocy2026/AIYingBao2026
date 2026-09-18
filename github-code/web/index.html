@@ -1,20 +1,175 @@
 <!doctype html>
 <html lang="zh-CN">
+
 <head>
+
 <meta charset="utf-8">
-<title>AI智营宝 V3.2.3</title>
-<link rel="stylesheet" href="styles.css">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>
+AI智营宝 V3.2.3
+</title>
+
+<link rel="stylesheet" href="./styles.css">
+
 </head>
+
+
 <body>
-<h1>AI智营宝 V3.2.3</h1>
-<div class="box">
-<input id="upload" type="file" accept="image/*">
-<button onclick="uploadImage()">开始识别</button>
-<h2 id="category">等待识别</h2>
-<h3>识别食材</h3>
-<ul id="ingredients"></ul>
-<div id="nutrition"></div>
+
+
+<div class="app-shell">
+
+
+<main>
+
+
+<section class="panel food-panel">
+
+
+<div class="panel-heading">
+
+<h2>
+AI照片营养识别
+</h2>
+
+<span>
+粗粒度识别模式
+</span>
+
 </div>
-<script src="app.js"></script>
+
+
+
+<div class="food-stage">
+
+
+<div class="recognition-box">
+
+
+<div class="upload-area">
+
+
+<label class="file-button">
+
+拍照识别
+
+<input 
+id="foodUpload"
+type="file"
+accept="image/*"
+hidden>
+
+</label>
+
+
+</div>
+
+
+
+<div class="recognition-result">
+
+
+<h3>
+AI识别结果
+</h3>
+
+
+
+<div class="food-category">
+
+当前类别：
+
+<strong id="foodName">
+等待识别
+</strong>
+
+</div>
+
+
+
+<div class="ingredients-box">
+
+
+<h4>
+识别食材
+</h4>
+
+
+<ul id="ingredients">
+
+</ul>
+
+
+</div>
+
+
+
+
+
+<div class="nutrition-card">
+
+
+<h4>
+营养估算
+</h4>
+
+
+<p id="foodMacro">
+
+等待识别图片
+
+</p>
+
+
+</div>
+
+
+
+
+
+<div class="top5-box">
+
+
+<h4>
+AI Top-5预测
+</h4>
+
+
+<ul id="top5">
+
+</ul>
+
+
+
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+</main>
+
+
+</div>
+
+
+
+<script src="./app.js"></script>
+
+
 </body>
+
 </html>
