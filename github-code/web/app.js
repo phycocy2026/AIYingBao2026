@@ -128,6 +128,41 @@ const foodAliases = {
   coffee: ["咖啡", "拿铁", "美式", "纸杯咖啡", "杯装咖啡", "costa", "coffee", "latte", "americano"],
   bowl: ["轻食", "鸡胸", "藜麦", "bowl", "chicken", "quinoa"]
 };
+const labelChinese = {
+
+  "meat loaf": "肉卷/肉饼类",
+  "meatloaf": "肉卷/肉饼类",
+
+  "burrito": "墨西哥卷饼",
+
+  "guacamole": "牛油果酱",
+
+  "plate": "餐盘",
+
+  "bagel": "贝果面包",
+  "beigel": "贝果面包",
+
+  "beef": "牛肉",
+  "steak": "牛排",
+  "roast beef": "烤牛肉",
+
+  "rice": "米饭",
+
+  "noodle": "面条",
+  "ramen": "拉面",
+
+  "salad": "沙拉",
+
+  "chicken": "鸡肉",
+
+  "fish": "鱼",
+
+  "shrimp": "虾",
+
+  "milk tea": "奶茶",
+
+  "coffee": "咖啡"
+};
 
 const goalText = {
   balance: "均衡维持",
@@ -267,7 +302,21 @@ function mapModelFood(label, dishName = "") {
   }
   return null;
 }
+function translateFoodLabel(name){
 
+  const text = String(name).toLowerCase();
+
+  for(const key of Object.keys(labelChinese)){
+
+    if(text.includes(key)){
+      return labelChinese[key];
+    }
+
+  }
+
+  return name;
+
+}
 function fileToDataUrl(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
