@@ -1,20 +1,85 @@
 <!doctype html>
 <html lang="zh-CN">
 <head>
-<meta charset="utf-8">
-<title>AI智营宝 V3.2.3</title>
-<link rel="stylesheet" href="styles.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#167d5a">
+  <title>AI智营宝 V3.2.4</title>
+  <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
-<h1>AI智营宝 V3.2.3</h1>
-<div class="box">
-<input id="upload" type="file" accept="image/*">
-<button onclick="uploadImage()">开始识别</button>
-<h2 id="category">等待识别</h2>
-<h3>识别食材</h3>
-<ul id="ingredients"></ul>
-<div id="nutrition"></div>
-</div>
-<script src="app.js"></script>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand"><span class="brand-mark">AI</span><div><strong>AI智营宝</strong><small>健康生活 · 智慧管理</small></div></div>
+      <nav class="nav" aria-label="主导航">
+        <a class="active" href="#overview">⌂ <span>今日总览</span></a>
+        <a href="#profile">◎ <span>身体与目标</span></a>
+        <a href="#recognition">◉ <span>AI照片识别</span></a>
+        <a href="#recommendations">✦ <span>个性化推荐</span></a>
+        <a href="#coach">◇ <span>健康教练</span></a>
+        <a href="#community">♡ <span>社区支持</span></a>
+      </nav>
+      <div class="side-tip"><b>每日小目标</b><p>规律饮食，记录每一份健康。</p><div class="progress"><i style="width:72%"></i></div><small>本周完成度 72%</small></div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar"><div><p class="eyebrow">AI NUTRITION ASSISTANT</p><h1>早上好，开启健康的一天</h1><p>用简单记录，看见每天的进步。</p></div><div class="date-chip" id="todayText"></div></header>
+
+      <section id="overview" class="section">
+        <div class="section-title"><div><h2>今日总览</h2><p>根据你的目标生成的今日营养参考</p></div><span class="status-dot">状态良好</span></div>
+        <div class="metric-grid">
+          <article class="metric hero-metric"><div class="score-ring"><span id="healthScore">86</span><small>健康评分</small></div><div><b>饮食结构均衡</b><p>继续保持蔬菜与优质蛋白摄入。</p></div></article>
+          <article class="metric"><span class="metric-icon orange">火</span><p>建议热量</p><strong id="calorieGoal">1850</strong><small>kcal / 天</small></article>
+          <article class="metric"><span class="metric-icon blue">蛋</span><p>蛋白目标</p><strong id="proteinGoal">95</strong><small>g / 天</small></article>
+          <article class="metric"><span class="metric-icon green">步</span><p>今日步数</p><strong>7,680</strong><small>目标 10,000</small></article>
+        </div>
+      </section>
+
+      <div class="two-column">
+        <section id="profile" class="card section">
+          <div class="section-title compact"><div><h2>身体与目标</h2><p>调整后会更新每日建议</p></div></div>
+          <form id="profileForm" class="profile-form">
+            <label>性别<select id="gender"><option value="female">女</option><option value="male">男</option></select></label>
+            <label>年龄<input id="age" type="number" min="12" max="100" value="28"></label>
+            <label>身高（cm）<input id="height" type="number" min="120" max="230" value="165"></label>
+            <label>体重（kg）<input id="weight" type="number" min="30" max="250" step="0.1" value="58"></label>
+            <label>健康目标<select id="goal"><option value="maintain">保持健康</option><option value="loss">科学减脂</option><option value="gain">增肌塑形</option></select></label>
+            <label>活动水平<select id="activity"><option value="1.2">久坐</option><option value="1.375" selected>轻度活动</option><option value="1.55">中度活动</option><option value="1.725">高强度活动</option></select></label>
+            <button class="primary" type="submit">更新健康建议</button>
+          </form>
+        </section>
+
+        <section id="recognition" class="card section recognition-card">
+          <div class="section-title compact"><div><h2>AI照片识别</h2><p>粗粒度餐食分类 · 营养仅供参考</p></div><span class="ai-badge">Qwen3-VL</span></div>
+          <div id="dropZone" class="upload-zone" tabindex="0">
+            <input id="foodUpload" type="file" accept="image/*" hidden>
+            <img id="preview" alt="待识别餐食预览" hidden>
+            <div id="uploadPrompt"><span class="camera">▣</span><b>上传或拖入餐食照片</b><small>支持 JPG、PNG、WEBP，最大 8MB</small></div>
+          </div>
+          <div class="button-row"><button id="chooseButton" class="secondary" type="button">选择照片</button><button id="recognizeButton" class="primary" type="button" disabled>开始识别</button></div>
+          <p id="recognitionStatus" class="notice" role="status">等待上传照片</p>
+          <div id="resultPanel" class="result-panel" hidden>
+            <div class="result-head"><div><small>餐食粗分类</small><h3 id="foodName">混合餐食</h3></div><span id="confidenceBadge">可信度 --</span></div>
+            <div><h4>可见食材</h4><div id="ingredients" class="chips"></div></div>
+            <div class="nutrition-grid"><div><b id="calories">--</b><small>千卡</small></div><div><b id="protein">--</b><small>蛋白质 g</small></div><div><b id="carbs">--</b><small>碳水 g</small></div><div><b id="fat">--</b><small>脂肪 g</small></div></div>
+            <div><h4>AI Top-5 参考</h4><ol id="top5" class="top5-list"></ol></div>
+          </div>
+        </section>
+      </div>
+
+      <section id="recommendations" class="section">
+        <div class="section-title"><div><h2>个性化推荐</h2><p>结合今日目标，为你安排更轻松的选择</p></div></div>
+        <div class="recommend-grid"><article class="recommend warm"><span>早餐</span><h3>高蛋白开启元气</h3><p>鸡蛋、无糖酸奶与全麦主食，饱腹更持久。</p></article><article class="recommend green-bg"><span>午餐</span><h3>一拳主食，两掌蔬菜</h3><p>搭配鱼虾或禽肉，兼顾蛋白质与膳食纤维。</p></article><article class="recommend purple"><span>晚餐</span><h3>清淡但不节食</h3><p>减少重油酱汁，保留适量主食与优质蛋白。</p></article></div>
+      </section>
+
+      <div class="two-column lower">
+        <section id="coach" class="card section"><div class="section-title compact"><div><h2>虚拟健康教练</h2><p>一个温和、可执行的小建议</p></div></div><div class="coach-message"><span class="avatar">智</span><div><b>今天蛋白质还差约 22g</b><p>晚餐可选择一掌大小的鱼虾或豆腐，无需刻意节食。</p></div></div><div class="quick-actions"><button type="button">如何搭配晚餐？</button><button type="button">怎样少吃油？</button></div></section>
+        <section id="community" class="card section"><div class="section-title compact"><div><h2>社区支持</h2><p>和大家一起把健康变成习惯</p></div></div><div class="community-list"><article><span>🥗</span><div><b>七日均衡饮食挑战</b><p>2,438 人正在参与</p></div><button type="button">加入</button></article><article><span>🚶</span><div><b>饭后走一走</b><p>今天已有 986 次打卡</p></div><button type="button">打卡</button></article></div></section>
+      </div>
+      <footer>AI智营宝 V3.2.4 · 识别和营养估算不替代专业医疗建议</footer>
+    </main>
+  </div>
+  <script src="./top5_translate.js"></script>
+  <script src="./app.js"></script>
 </body>
 </html>
