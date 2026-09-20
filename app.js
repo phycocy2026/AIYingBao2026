@@ -53,10 +53,12 @@
     if (!selectedFile) return;
     const button = $("recognizeButton"); button.disabled = true; button.textContent = "AI识别中…"; setStatus("正在分析餐食图片，Render 首次唤醒可能需要约一分钟。");
     try {
-      const response = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ imageDataUrl: await asDataUrl(selectedFile) }) });
+      // text/plain 属于 CORS 简单请求，可兼容尚未处理 OPTIONS 预检的旧 Render 后端；
+      // 请求体仍是合法 JSON，服务端原有 JSON.parse(raw) 无需修改。
+      const response = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ imageDataUrl: await asDataUrl(selectedFile) }) });
       const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || `服务响应异常（${response.status}）`);
       displayResult(data); setStatus("识别完成：结果已按粗粒度餐食类别展示。");
-    } catch (error) { setStatus(`识别失败：${error.message}。请确认 Render 服务已启动并允许跨域访问。`, true); }
+    } catch (error) { setStatus(`识别失败：${error.message}。请先在浏览器打开 Render 服务地址进行唤醒，并确认后端已部署。`, true); }
     finally { button.disabled = false; button.textContent = "重新识别"; }
   });
 })();
