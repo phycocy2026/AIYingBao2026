@@ -1,11 +1,13 @@
 {
-  "name": "aiyingbao-api",
-  "version": "3.2.3",
-  "type": "commonjs",
+  "name": "aiyingbao-v3-2-4",
+  "version": "3.2.4",
+  "private": true,
+  "description": "AI智营宝完整仪表盘与Qwen3-VL视觉营养识别服务",
+  "main": "vision-proxy-server.js",
   "scripts": {
-    "start": "node vision-proxy-server.js"
+    "start": "node vision-proxy-server.js",
+    "check": "node --check vision-proxy-server.js && node --check app.js && node --check top5_translate.js"
   },
-  "dependencies": {
-    "busboy": "^1.6.0"
-  }
+  "engines": { "node": ">=18" },
+  "license": "UNLICENSED"
 }

@@ -1,63 +1,32 @@
-# AI智营宝智能健康与营养管理助手
+# AI智营宝 V3.2.4 完整界面修正版
 
-本仓库包含三个版本：
+本包同时包含可发布到 GitHub Pages 的完整前端，以及可部署到 Render 的 Node.js 视觉识别接口。
 
-- `web/`：普通网页版，支持图片上传并通过后端代理调用视觉大模型。
-- `windows-pc/`：Windows PC 桌面版，基于 Python Tkinter，支持图片上传和视觉大模型识别。
-- `wechat-miniprogram/`：微信小程序版，支持拍照/选图并通过云函数调用视觉大模型。
+## GitHub Pages
 
-## 普通网页版
+将本目录中的 `index.html`、`app.js`、`styles.css` 和 `top5_translate.js` 上传到仓库根目录。在 GitHub 的 **Settings → Pages** 中选择 `main` 与 `/ (root)`。`index.html` 已确保先加载 `top5_translate.js`，再加载 `app.js`。
 
-进入 `web` 目录后运行：
+前端默认调用：
 
-```powershell
-$env:DASHSCOPE_API_KEY="你的API Key"
-node vision-proxy-server.js
-```
+`https://aiyingbao2026.onrender.com/api/vision-recognition`
 
-浏览器打开：
+如需更换接口，可在 `app.js` 之前设置 `window.AIYINGBAO_API_URL`，或在浏览器控制台执行：
 
-```text
-http://localhost:8787
-```
+`localStorage.setItem('aiyingbaoApiUrl', 'https://你的域名/api/vision-recognition')`
 
-## Windows PC 版
+## Render 后端
 
-进入 `windows-pc` 目录后运行：
+把 `package.json` 和 `vision-proxy-server.js` 放在 Render 服务的 Root Directory 中。
 
-```powershell
-$env:DASHSCOPE_API_KEY="你的API Key"
-python AIYingBao_PC.py
-```
+- Build Command：`npm install`
+- Start Command：`npm start`
+- Environment Variable：`DASHSCOPE_API_KEY=你的阿里云百炼API密钥`
+- Health Check Path：`/health`
 
-也可以双击 `run_AIYingBao_PC.bat` 启动基础版本。
+服务调用 `qwen3-vl-plus`，接口为 `POST /api/vision-recognition`。API 密钥只保存在 Render 环境变量中，切勿写入前端或提交到 GitHub。
 
-## 微信小程序版
+如果页面提示 `Failed to fetch`，请先访问 `https://aiyingbao2026.onrender.com/health` 唤醒 Render 服务；若无法看到健康检查 JSON，请在 Render 重新部署本包中的 `vision-proxy-server.js` 并确认环境变量已设置。前端使用兼容旧服务的简单跨域请求，不依赖 `OPTIONS` 预检。
 
-1. 使用微信开发者工具打开 `wechat-miniprogram`。
-2. 开通云开发。
-3. 部署云函数 `cloudfunctions/recognizeFoodImage`。
-4. 在云函数环境变量中配置：
+## 识别输出
 
-```text
-DASHSCOPE_API_KEY=你的API Key
-```
-
-## 大模型配置
-
-默认使用阿里云百炼 DashScope 的 OpenAI 兼容接口：
-
-```text
-模型：qwen-vl-plus
-接口：https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions
-```
-
-可选环境变量：
-
-```text
-AIYINGBAO_VISION_MODEL
-AIYINGBAO_VISION_API_URL
-AIYINGBAO_VISION_API_KEY
-```
-
-不要把 API Key 写入前端代码或提交到 GitHub。
+页面与后端均限制为粗粒度类别，例如：牛肉类主食、面食类、米饭类餐食、鱼虾类、蔬菜类、水果类、混合餐食。后端会返回中文食材、营养估算、可信度和 Top-5；前端还会对常见英文标签进行中文兜底映射。营养结果仅供健康管理参考，不替代专业医疗意见。
