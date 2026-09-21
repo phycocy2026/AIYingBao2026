@@ -1,6 +1,9 @@
 (function () {
   "use strict";
   const DEFAULT_API = "https://aiyingbao2026.onrender.com/api/vision-recognition";
+  const MAX_IMAGE_SIDE = 1600;
+  const JPEG_QUALITY = 0.82;
+  const REQUEST_TIMEOUT_MS = 120000;
   const API = window.AIYINGBAO_API_URL || localStorage.getItem("aiyingbaoApiUrl") || DEFAULT_API;
   const $ = (id) => document.getElementById(id);
   let selectedFile = null;
@@ -34,7 +37,32 @@
   ["dragleave", "drop"].forEach((name) => $("dropZone").addEventListener(name, (e) => { e.preventDefault(); $("dropZone").classList.remove("dragging"); }));
   $("dropZone").addEventListener("drop", (e) => selectFile(e.dataTransfer.files[0]));
   function setStatus(text, error) { $("recognitionStatus").textContent = text; $("recognitionStatus").classList.toggle("error", !!error); }
-  function asDataUrl(file) { return new Promise((resolve, reject) => { const r = new FileReader(); r.onload = () => resolve(r.result); r.onerror = reject; r.readAsDataURL(file); }); }
+  function loadImage(file) {
+    return new Promise((resolve, reject) => {
+      const image = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      image.onload = () => { URL.revokeObjectURL(objectUrl); resolve(image); };
+      image.onerror = () => { URL.revokeObjectURL(objectUrl); reject(new Error("手机无法读取这张照片，请改选 JPG 或 PNG 图片")); };
+      image.src = objectUrl;
+    });
+  }
+  async function prepareImage(file) {
+    const image = await loadImage(file);
+    const scale = Math.min(1, MAX_IMAGE_SIDE / Math.max(image.naturalWidth, image.naturalHeight));
+    const width = Math.max(1, Math.round(image.naturalWidth * scale));
+    const height = Math.max(1, Math.round(image.naturalHeight * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = width; canvas.height = height;
+    const context = canvas.getContext("2d", { alpha: false });
+    if (!context) throw new Error("当前浏览器无法处理照片");
+    context.fillStyle = "#fff"; context.fillRect(0, 0, width, height);
+    context.drawImage(image, 0, 0, width, height);
+    return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
+  }
+  async function wakeService() {
+    const healthUrl = new URL(API); healthUrl.pathname = "/health"; healthUrl.search = "";
+    try { await fetch(healthUrl, { method: "GET", cache: "no-store" }); } catch { /* POST 会给出最终结果 */ }
+  }
   function number(value, fallback = 0) { const n = Number(value); return Number.isFinite(n) ? Math.round(n * 10) / 10 : fallback; }
   function scorePercent(value) { const n = number(value); return Math.max(0, Math.min(100, n <= 1 ? n * 100 : n)); }
   function escapeHtml(value) { const el = document.createElement("span"); el.textContent = String(value); return el.innerHTML; }
@@ -51,14 +79,22 @@
   }
   $("recognizeButton").addEventListener("click", async () => {
     if (!selectedFile) return;
-    const button = $("recognizeButton"); button.disabled = true; button.textContent = "AI识别中…"; setStatus("正在分析餐食图片，Render 首次唤醒可能需要约一分钟。");
+    const button = $("recognizeButton"); button.disabled = true; button.textContent = "AI识别中…"; setStatus("正在压缩照片并连接识别服务，首次唤醒可能需要约一分钟。");
     try {
-      // text/plain 属于 CORS 简单请求，可兼容尚未处理 OPTIONS 预检的旧 Render 后端；
-      // 请求体仍是合法 JSON，服务端原有 JSON.parse(raw) 无需修改。
-      const response = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ imageDataUrl: await asDataUrl(selectedFile) }) });
+      const imageDataUrl = await prepareImage(selectedFile);
+      await wakeService();
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+      let response;
+      try {
+        response = await fetch(API, { method: "POST", headers: { "Content-Type": "text/plain;charset=UTF-8" }, body: JSON.stringify({ imageDataUrl }), signal: controller.signal });
+      } finally { clearTimeout(timer); }
       const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || `服务响应异常（${response.status}）`);
       displayResult(data); setStatus("识别完成：结果已按粗粒度餐食类别展示。");
-    } catch (error) { setStatus(`识别失败：${error.message}。请先在浏览器打开 Render 服务地址进行唤醒，并确认后端已部署。`, true); }
+    } catch (error) {
+      const message = error.name === "AbortError" ? "识别等待超过 2 分钟，请稍后重试" : error.message === "Load failed" || error.message === "Failed to fetch" ? "网络连接中断，请关闭 VPN/内容拦截后切换 Wi-Fi 或蜂窝网络重试" : error.message;
+      setStatus(`识别失败：${message}。`, true);
+    }
     finally { button.disabled = false; button.textContent = "重新识别"; }
   });
 })();

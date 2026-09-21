@@ -1,4 +1,4 @@
-# AI智营宝 V3.2.4 完整界面修正版
+# AI智营宝 V3.2.5 手机端修正版
 
 本包同时包含可发布到 GitHub Pages 的完整前端，以及可部署到 Render 的 Node.js 视觉识别接口。
 
@@ -25,7 +25,7 @@
 
 服务调用 `qwen3-vl-plus`，接口为 `POST /api/vision-recognition`。API 密钥只保存在 Render 环境变量中，切勿写入前端或提交到 GitHub。
 
-如果页面提示 `Failed to fetch`，请先访问 `https://aiyingbao2026.onrender.com/health` 唤醒 Render 服务；若无法看到健康检查 JSON，请在 Render 重新部署本包中的 `vision-proxy-server.js` 并确认环境变量已设置。前端使用兼容旧服务的简单跨域请求，不依赖 `OPTIONS` 预检。
+V3.2.5 会在手机端自动把照片缩放到最长边 1600 像素并转成 JPEG，再唤醒 Render 服务后上传，避免 iPhone 原始照片经 Base64 编码后过大导致 Safari 报 `Load failed`。若仍提示网络连接中断，请关闭 VPN/内容拦截，或切换 Wi-Fi 与蜂窝网络后重试。
 
 ## 识别输出
 

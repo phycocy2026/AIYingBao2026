@@ -1,6 +1,6 @@
 {
   "name": "aiyingbao-v3-2-4",
-  "version": "3.2.4",
+  "version": "3.2.5",
   "private": true,
   "description": "AI智营宝完整仪表盘与Qwen3-VL视觉营养识别服务",
   "main": "vision-proxy-server.js",
